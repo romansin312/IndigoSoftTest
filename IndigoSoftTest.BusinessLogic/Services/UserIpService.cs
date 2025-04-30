@@ -1,6 +1,9 @@
 ﻿using System.Net;
 using IndigoSoftTest.BusinessLogic.Entities;
 using IndigoSoftTest.BusinessLogic.Repositories;
+using IndigoSoftTest.BusinessLogic.Repositories.IpAddresses;
+using IndigoSoftTest.BusinessLogic.Repositories.UserIp;
+using IndigoSoftTest.BusinessLogic.Repositories.Users;
 
 namespace IndigoSoftTest.BusinessLogic.Services;
 
@@ -9,23 +12,37 @@ public enum IpAdressVersion
     V4, V6
 }
 
-public class UserIpService : IUserIpService
+public class UserIpService(IUserIpRepository userIpRepository, IUsersRepository usersRepository, IIpAddressesRepository ipAddressesRepository)
+    : IUserIpService
 {
-    private readonly IUserIpRepository _userIpRepository;
-
-    public UserIpService(IUserIpRepository userIpRepository)
+    public async Task AddAsync(ulong userId, string ipAddress, IpAddressVersion ipAddressVersion)
     {
-        _userIpRepository = userIpRepository;
-    }
-    
-    public async Task Add(long userName, string ipAddress, IpAddressVersion ipAddressVersion)
-    {
-        await _userIpRepository.Create(new UserIp
+        var ipAddressEntity = await ipAddressesRepository.GetByIp(ipAddress) ?? new IpAddress()
         {
-            UserId = userName,
+            Ip = ipAddress,
             IpAddressVersion = ipAddressVersion,
-            LastConnectionDate = DateTime.Now,
-            IpAddress = ipAddress
-        });
+            Id = Guid.NewGuid()
+        };
+
+        var userEntity = await usersRepository.GetByUserIdAsync(userId) ?? new User()
+        {
+            UserId = userId
+        };
+        
+        var existingUserIp = await userIpRepository.GetByUserAndIp(userEntity.UserId, ipAddressEntity.Id);
+        if (existingUserIp != null)
+        {
+            existingUserIp.ConnectionDate = DateTime.UtcNow;
+        }
+        else
+        {
+            await userIpRepository.CreateAsync(new UserIp
+            {
+                Id = Guid.NewGuid(),
+                ConnectionDate = DateTime.UtcNow,
+                IpAddress = ipAddressEntity,
+                User = userEntity
+            });
+        }
     }
 }

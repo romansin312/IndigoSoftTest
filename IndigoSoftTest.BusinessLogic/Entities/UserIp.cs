@@ -13,24 +13,41 @@ public enum IpAddressVersion
 /// Table with relations of users and their IP 
 /// </summary>
 [Table("UserIps")]
-[Index("IpAddress")]
+[Index(nameof(IpAddressId))]
+[Index(nameof(UserId))]
+[PrimaryKey(nameof(Id))]
 public class UserIp
 {
     /// <summary>
-    /// User identifier
+    /// Record identifier
     /// </summary>
-    [Key,Required]
-    public long UserId { get; set; }
+    [Key]
+    public Guid Id { get; init; }
     
     /// <summary>
-    /// User's Ip Address
+    /// Users table ID
     /// </summary>
-    public string? IpAddress { get; set; }
-    
-    public IpAddressVersion IpAddressVersion { get; set; }
+    [Required]
+    public ulong UserId { get; init; }
     
     /// <summary>
-    /// Last connection date
+    /// Ip Addresses table ID
     /// </summary>
-    public DateTime LastConnectionDate { get; set; }
+    [Required]
+    public Guid IpAddressId { get; init; }
+
+    /// <summary>
+    /// Connection date
+    /// </summary>
+    public DateTime ConnectionDate { get; set; }
+
+    /// <summary>
+    /// User navigation property
+    /// </summary>
+    public required User User { get; init; }
+    
+    /// <summary>
+    /// Ip address navigation property
+    /// </summary>
+    public required IpAddress IpAddress { get; init; }
 }
