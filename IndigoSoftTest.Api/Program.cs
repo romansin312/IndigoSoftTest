@@ -1,3 +1,4 @@
+using System.Reflection;
 using IndigoSoftTest.BusinessLogic.DI;
 using IndigoSoftTest.BusinessLogic.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -7,28 +8,22 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddBusinessLogic(builder.Configuration);
-builder.Services.AddSwaggerGen();
-
+builder.Services.AddSwaggerGen(c =>
+{
+    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    c.IncludeXmlComments(xmlPath);
+});
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-// if (!app.Environment.IsDevelopment())
-{
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    app.UseHsts();
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-
+app.UseHsts();
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.MapControllers();
 app.UseRouting();
 
-// app.UseHttpsRedirection();
-// app.UseStaticFiles();
-
-// app.UseAuthorization();
 
 using (var serviceScope = app.Services.CreateScope())
 {

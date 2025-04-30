@@ -14,6 +14,11 @@ public class UserIpController(ILogger<UserIpController> logger, IUserIpService u
 {
     private readonly ILogger<UserIpController> _logger = logger;
 
+    /// <summary>
+    /// Add a new user-ip record
+    /// </summary>
+    /// <param name="request">Request body containing UserId and Ip Address</param>
+    /// <response code="200"></response>
     [HttpPost("add")]
     public async Task<IActionResult> AddAddress([FromBody] AddUserIpRequest request)
     {
@@ -27,13 +32,23 @@ public class UserIpController(ILogger<UserIpController> logger, IUserIpService u
         return Created();
     }
 
-    [HttpGet("by-user/all")]
+    /// <summary>
+    /// Find all IP addresses for a specified User ID
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <response code="200">List of IP addresses or an empty list if there is no any record</response>
+    [HttpGet("by-user/{userId}/all")]
     public async Task<ActionResult<IList<string>>> GetAllIpsByUserId(ulong userId)
     {
         return Ok(await userIpService.GetIpsByUserId(userId));
     }
 
-    [HttpGet("by-user/last-connected")]
+    /// <summary>
+    /// Get the latest connection for a specified user ID
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <response code="200">IP address and Last connection date</response>
+    [HttpGet("by-user/{userId}/last-connected")]
     public async Task<ActionResult<LastConnectedIpResponse>> GetLastConnectedIpByUserId(ulong userId)
     {
         var lastConnectedUserIp = await userIpService.GetLastConnectedIp(userId);
@@ -49,6 +64,12 @@ public class UserIpController(ILogger<UserIpController> logger, IUserIpService u
         });
     }
 
+    /// <summary>
+    /// Get a date and time of the latest connection for specified User ID and Ip Address
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <param name="ip"></param>
+    /// <response code="200">Date and Time in the ISO 8601 format</response>
     [HttpGet("by-user/{userId}/ip/{ip}/connection-date")]
     public async Task<ActionResult<DateTime>> GetLastConnectedIpByUserId(ulong userId, string ip)
     {
@@ -67,8 +88,13 @@ public class UserIpController(ILogger<UserIpController> logger, IUserIpService u
         return Ok(userIp.ConnectionDate);
     }
 
-    [HttpGet("users/by-ip")]
-    public async Task<ActionResult<IList<ulong>>> GetLastConnectedIpByUserId(string ip)
+    /// <summary>
+    /// Get users by full or beginning of an IP address
+    /// </summary>
+    /// <param name="ip"></param>
+    /// <response code="200">User IDs list</response>
+    [HttpGet("users/by-ip/{ip}")]
+    public async Task<ActionResult<IList<ulong>>> GetUsersByIp(string ip)
     {
         return Ok(await userIpService.GetUsersByIp(ip));
     }
