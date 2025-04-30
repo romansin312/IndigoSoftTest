@@ -4,7 +4,7 @@ using Npgsql;
 
 namespace IndigoSoftTest.BusinessLogic.Entities;
 
-public sealed class IndigoSoftTestDbContext(IConfiguration configuration) : DbContext()
+public sealed class IndigoSoftTestDbContext(DbContextOptions options) : DbContext(options)
 {
     public DbSet<UserIp> UserIps { get; set; }
     public DbSet<User> Users { get; set; }
@@ -12,7 +12,7 @@ public sealed class IndigoSoftTestDbContext(IConfiguration configuration) : DbCo
     
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder?.UseNpgsql(configuration.GetConnectionString("Postgres"), x => x.MigrationsAssembly("IndigoSoftTest.BusinessLogic"));
+        // optionsBuilder?.UseNpgsql(configuration.GetConnectionString("Postgres"), x => x.MigrationsAssembly("IndigoSoftTest.BusinessLogic"));
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
