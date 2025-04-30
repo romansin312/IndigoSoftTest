@@ -1,4 +1,6 @@
 using IndigoSoftTest.BusinessLogic.DI;
+using IndigoSoftTest.BusinessLogic.Entities;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -6,6 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddBusinessLogic();
 builder.Services.AddSwaggerGen();
+
 
 var app = builder.Build();
 
@@ -18,13 +21,18 @@ var app = builder.Build();
     app.UseSwaggerUI();
 }
 
+
 app.MapControllers();
 app.UseRouting();
 
 // app.UseHttpsRedirection();
 // app.UseStaticFiles();
 
-
 // app.UseAuthorization();
+
+using (var serviceScope = app.Services.CreateScope())
+{
+    serviceScope.ServiceProvider.GetRequiredService<IndigoSoftTestDbContext>().Database.Migrate();
+}
 
 app.Run();

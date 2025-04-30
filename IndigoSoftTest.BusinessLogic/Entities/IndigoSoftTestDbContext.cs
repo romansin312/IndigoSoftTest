@@ -1,9 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Npgsql;
 
 namespace IndigoSoftTest.BusinessLogic.Entities;
 
-public sealed class IndigoSoftTestDbContext() : DbContext()
+public sealed class IndigoSoftTestDbContext(IConfiguration configuration) : DbContext()
 {
     public DbSet<UserIp> UserIps { get; set; }
     public DbSet<User> Users { get; set; }
@@ -11,7 +12,7 @@ public sealed class IndigoSoftTestDbContext() : DbContext()
     
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder?.UseNpgsql("User ID=postgres;Password=1234;Host=localhost;Port=5432;Database=indigosofttest;");
+        optionsBuilder?.UseNpgsql(configuration.GetConnectionString("Postgres"), x => x.MigrationsAssembly("IndigoSoftTest.BusinessLogic"));
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
