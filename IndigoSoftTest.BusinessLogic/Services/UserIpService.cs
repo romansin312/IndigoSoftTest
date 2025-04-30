@@ -12,7 +12,7 @@ public enum IpAdressVersion
     V4, V6
 }
 
-public class UserIpService(IUserIpRepository userIpRepository, IUsersRepository usersRepository, IIpAddressesRepository ipAddressesRepository)
+public class UserIpService(IUserIpRepository userIpRepository, IUsersRepository usersRepository, IIpAddressesRepository ipAddressesRepository, IndigoSoftTestDbContext indigoSoftTestDbContext)
     : IUserIpService
 {
     public async Task AddAsync(ulong userId, string ipAddress, IpAddressVersion ipAddressVersion)
@@ -44,5 +44,7 @@ public class UserIpService(IUserIpRepository userIpRepository, IUsersRepository 
                 User = userEntity
             });
         }
+
+        await indigoSoftTestDbContext.SaveChangesAsync();
     }
 }

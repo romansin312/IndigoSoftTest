@@ -7,17 +7,14 @@ using IndigoSoftTest.BusinessLogic.Services;
 
 namespace IndigoSoftTest.Api.Controllers;
 
-public class UserIpController : Controller
+[ApiController]
+[Route("api/[controller]")]
+public class UserIpController(ILogger<UserIpController> logger, IUserIpService userIpService)
+    : Controller
 {
-    private readonly ILogger<UserIpController> _logger;
-    private readonly IUserIpService _userIpService;
+    private readonly ILogger<UserIpController> _logger = logger;
 
-    public UserIpController(ILogger<UserIpController> logger, IUserIpService userIpService)
-    {
-        _logger = logger;
-        _userIpService = userIpService;
-    }
-
+    [HttpPost("add")]
     public async Task<IActionResult> AddAddress([FromBody] AddUserIpRequest request)
     {
         var ipAddress = ParseIp(request.IpAddress);
@@ -26,7 +23,7 @@ public class UserIpController : Controller
             return BadRequest("Invalid IP address.");
         }
         
-        await _userIpService.AddAsync(request.UserId, ipAddress.ToString(), ipAddress.AddressFamily == AddressFamily.InterNetwork ? IpAddressVersion.V4 :  IpAddressVersion.V6);
+        await userIpService.AddAsync(request.UserId, ipAddress.ToString(), ipAddress.AddressFamily == AddressFamily.InterNetwork ? IpAddressVersion.V4 :  IpAddressVersion.V6);
         return Created();
     }
 
